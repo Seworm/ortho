@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orthopedic & Trauma Surgery MCQ Master</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            navy: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo / Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+                    <div class="bg-sky-500 p-2 rounded-lg text-white">
+                        <i class="fa-solid font-bold fa-user-md text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Ortho & Trauma MCQ</h1>
+                        <p class="text-xs text-sky-400 font-medium">119 High-Yield Review Questions</p>
+                    </div>
+                </div>
+
+                <!-- Controls & Modes -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Timer Display (Exam Mode) -->
+                    <div id="timer-badge" class="hidden items-center bg-slate-800 text-amber-400 px-3 py-1.5 rounded-lg text-sm font-mono border border-slate-700">
+                        <i class="fa-regular fa-clock mr-2"></i>
+                        <span id="timer-display">00:00:00</span>
+                    </div>
+
+                    <!-- Mode Selectors -->
+                    <div class="flex bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs sm:text-sm">
+                        <button id="mode-practice-btn" onclick="setMode('practice')" class="px-3 py-1.5 rounded-md font-medium transition-all bg-sky-600 text-white shadow">
+                            Practice
+                        </button>
+                        <button id="mode-exam-btn" onclick="setMode('exam')" class="px-3 py-1.5 rounded-md font-medium transition-all text-slate-300 hover:text-white">
+                            Exam Mode
+                        </button>
+                    </div>
+
+                    <!-- Question Jump Grid Toggle -->
+                    <button onclick="toggleGridModal()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 relative" title="Question Map">
+                        <i class="fa-solid fa-th-large"></i>
+                        <span id="flag-count-badge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Sidebar / Filter Bar (Desktop) & Collapsible (Mobile) -->
+        <aside class="w-full md:w-64 flex-shrink-0 space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Filters & Sections</h2>
+                
+                <!-- Search Box -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Search questions..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all">
+                </div>
+
+                <!-- Category Filters -->
+                <nav class="space-y-1 text-sm font-medium">
+                    <button onclick="setCategory('ALL')" id="cat-ALL" class="w-full flex justify-between items-center px-3 py-2 rounded-lg bg-sky-50 text-sky-700 font-semibold">
+                        <span><i class="fa-solid fa-layer-group w-5 text-sky-500"></i> All Questions</span>
+                        <span id="cnt-ALL" class="text-xs bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">119</span>
+                    </button>
+                    <button onclick="setCategory('SEC_A')" id="cat-SEC_A" class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                        <span><i class="fa-solid fa-list-check w-5 text-slate-400"></i> Section A (SBA)</span>
+                        <span id="cnt-SEC_A" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">69</span>
+                    </button>
+                    <button onclick="setCategory('SEC_B')" id="cat-SEC_B" class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                        <span><i class="fa-solid fa-square-poll-vertical w-5 text-slate-400"></i> Section B (Multi)</span>
+                        <span id="cnt-SEC_B" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">10</span>
+                    </button>
+                    <button onclick="setCategory('SEC_C')" id="cat-SEC_C" class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                        <span><i class="fa-solid fa-toggle-on w-5 text-slate-400"></i> Section C (T/F)</span>
+                        <span id="cnt-SEC_C" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">40</span>
+                    </button>
+                </nav>
+
+                <hr class="border-slate-100">
+
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Views</h2>
+                <nav class="space-y-1 text-sm font-medium">
+                    <button onclick="setCategory('BOOKMARKED')" id="cat-BOOKMARKED" class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                        <span><i class="fa-solid fa-star w-5 text-amber-500"></i> Bookmarked</span>
+                        <span id="cnt-BOOKMARKED" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                    <button onclick="setCategory('INCORRECT')" id="cat-INCORRECT" class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                        <span><i class="fa-solid fa-circle-xmark w-5 text-rose-500"></i> Incorrect</span>
+                        <span id="cnt-INCORRECT" class="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                </nav>
+
+                <hr class="border-slate-100">
+
+                <!-- Reset Options -->
+                <div class="pt-1">
+                    <button onclick="confirmResetProgress()" class="w-full py-2 px-3 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 rounded-lg text-xs font-medium transition-colors flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Reset All Progress</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overall Stats Mini Card -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-slate-500">Overall Progress</span>
+                    <span id="progress-text" class="text-xs font-bold text-sky-600">0 / 119</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-3">
+                    <div id="progress-bar-fill" class="bg-sky-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        <div id="stat-accuracy" class="font-bold text-slate-700 text-sm">0%</div>
+                        <div class="text-slate-400">Accuracy</div>
+                    </div>
+                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        <div id="stat-answered" class="font-bold text-slate-700 text-sm">0</div>
+                        <div class="text-slate-400">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col space-y-4">
+
+            <!-- Question Card -->
+            <div id="question-card" class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col justify-between overflow-hidden">
+                
+                <!-- Card Header -->
+                <div class="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-start gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span id="q-section-badge" class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-0.5 rounded">Section A</span>
+                            <span id="q-number-badge" class="text-xs font-medium text-slate-400">Question 1 of 119</span>
+                        </div>
+                        <h2 id="q-text" class="text-base sm:text-lg font-semibold text-slate-800 leading-snug">
+                            Question text will render here...
+                        </h2>
+                    </div>
+                    <button id="bookmark-btn" onclick="toggleBookmarkCurrent()" class="text-slate-300 hover:text-amber-400 text-xl transition-colors p-1" title="Bookmark Question">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                </div>
+
+                <!-- Card Body (Options) -->
+                <div class="p-4 sm:p-6 flex-1 space-y-3" id="options-container">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <!-- Rationale Box (Practice Mode / Post-Exam View) -->
+                <div id="rationale-box" class="hidden p-4 sm:p-6 bg-slate-50 border-t border-slate-100">
+                    <div class="flex items-start space-x-3">
+                        <div id="rationale-icon" class="text-emerald-500 text-lg mt-0.5">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 id="rationale-title" class="font-bold text-sm text-slate-800">Correct Answer: D</h4>
+                            <p id="rationale-text" class="text-sm text-slate-600 leading-relaxed">
+                                Detailed rationale text goes here.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer (Actions) -->
+                <div class="p-4 sm:px-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                    <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-lg hover:bg-slate-50 transition-colors flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Previous</span>
+                    </button>
+
+                    <div class="flex items-center space-x-2">
+                        <button id="submit-exam-btn" onclick="submitExam()" class="hidden px-4 py-2 bg-emerald-600 text-white font-medium text-sm rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+                            Submit Exam
+                        </button>
+                        <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2 bg-sky-600 text-white font-medium text-sm rounded-lg hover:bg-sky-700 transition-colors flex items-center space-x-2 shadow-sm">
+                            <span>Next</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Score Summary (Hidden by default) -->
+            <div id="exam-summary" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
+                <div class="text-center space-y-2">
+                    <div id="summary-icon" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Exam Complete!</h2>
+                    <p class="text-sm text-slate-500">Here is a breakdown of your score performance</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                        <div class="text-xs font-semibold text-slate-400 uppercase">Score</div>
+                        <div id="score-percentage" class="text-3xl font-bold text-sky-600 my-1">85%</div>
+                        <div id="score-fraction" class="text-xs text-slate-500">101 / 119</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                        <div class="text-xs font-semibold text-slate-400 uppercase">Time Elapsed</div>
+                        <div id="time-taken-display" class="text-3xl font-bold text-slate-700 my-1">00:45:12</div>
+                        <div class="text-xs text-slate-500">Total Duration</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                        <div class="text-xs font-semibold text-slate-400 uppercase">Status</div>
+                        <div id="pass-fail-badge" class="text-2xl font-bold text-emerald-600 my-1">PASSED</div>
+                        <div class="text-xs text-slate-500">Cutoff: 70%</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button onclick="reviewExamAnswers()" class="px-5 py-2.5 bg-slate-800 text-white font-medium text-sm rounded-lg hover:bg-slate-700 transition-colors shadow">
+                        Review Answer Keys
+                    </button>
+                    <button onclick="setMode('practice')" class="px-5 py-2.5 bg-sky-600 text-white font-medium text-sm rounded-lg hover:bg-sky-700 transition-colors shadow">
+                        Return to Practice Mode
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Question Grid Map Modal -->
+    <div id="grid-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base sm:text-lg">Question Navigator Map</h3>
+                    <p class="text-xs text-slate-500">Click any question number to jump directly</p>
+                </div>
+                <button onclick="toggleGridModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Legend -->
+            <div class="px-5 py-3 bg-slate-100/70 border-b border-slate-200 flex flex-wrap gap-4 text-xs font-medium text-slate-600">
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300"></span><span>Unanswered</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-sky-500"></span><span>Answered</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span>Correct (Practice)</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span><span>Incorrect (Practice)</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-amber-400"></span><span>Bookmarked</span></div>
+            </div>
+
+            <!-- Grid Box -->
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1">
+                <div id="grid-container" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
+                    <!-- Dynamic grid buttons -->
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="toggleGridModal()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Dataset and Logic -->
+    <script>
+        // --- COMPLETE 119 MCQS DATASET ---
+        const rawQuestions = [
+            // SECTION A (1-69)
+            { id: 1, section: 'SEC_A', text: "A 30-year-old woman is involved in a high-speed motor vehicle accident and sustains a femur fracture. Prevention of fat embolism is best accomplished by:", options: { A: "Heparin", B: "Dextran", C: "Steroids", D: "Early fixation of long bone fractures", E: "Prophylactic intubation" }, answer: "D", rationale: "Early stabilization of long-bone fractures (within 24 hours) minimizes movement at the fracture site, drastically reducing the entry of bone marrow fat into damaged venous sinusoids and preventing Fat Embolism Syndrome (FES)." },
+            { id: 2, section: 'SEC_A', text: "Fracture of the neck of the fibula is associated with which nerve or arterial injury?", options: { A: "sciatic nerve", B: "sural nerve", C: "peroneal nerve", D: "popliteal nerve", E: "tibial nerve" }, answer: "C", rationale: "The common peroneal nerve wraps around the neck of the fibula, making it vulnerable to direct trauma or traction injuries in fractures of the proximal fibular neck, leading to foot drop." },
+            { id: 3, section: 'SEC_A', text: "With regard to the clinical features of gonococcal arthritis, which of the following statements is/are true?", options: { A: "It occurs predominantly in elderly males.", B: "It usually begins as a migratory polyarthralgia", C: "The hip, knee, and shoulder are the most common sites of infection", D: "Even with proper treatment, mild residual loss of joint motion usually results" }, answer: "B", rationale: "Disseminated gonococcal infection typically presents with a prodrome of migratory polyarthralgia, tenosynovitis, and skin lesions before settling into a localized arthritis." },
+            { id: 4, section: 'SEC_A', text: "Torus fractures and greenstick fractures have which of the following characteristics in common?", options: { A: "at least partial continuity of the cortex", B: "higher rate of non-union than with other fractures", C: "best treated by internal fixation", D: "caused by repeated stress", E: "occur only in adults" }, answer: "A", rationale: "Both torus (buckle) and greenstick fractures are incomplete fractures unique to pediatric bone where at least part of the cortical circumference remains continuous." },
+            { id: 5, section: 'SEC_A', text: "A 16 year-old boy is seen in the emergency department with a gunshot wound to the thigh. Examination reveals one bullet wound in the posterolateral aspect of the mid-thigh. There is obvious deformity of the femur and a peroneal nerve palsy. What should the physician recommend?", options: { A: "Skeletal traction followed by long leg casting", B: "Closed intramedullary (IM) nailing of the femur with a locked nail", C: "Exploration of the peroneal nerve and plating of the femur", D: "Bullet extraction, peroneal nerve exploration, and IM nailing of the femur" }, answer: "B", rationale: "Low-velocity gunshot fractures are treated like closed fractures. Nerve injuries are typically neuropraxic contusions that recover spontaneously; the acute management priority is internal stabilization of the long bone." },
+            { id: 6, section: 'SEC_A', text: "What is the most appropriate diagnostic test (if available) for the patient who suspected of having a herniated disc", options: { A: "electromyography", B: "bone scanning", C: "MRI", D: "CT scanning", E: "Plain radiograph" }, answer: "C", rationale: "Magnetic Resonance Imaging (MRI) is the gold standard for visualizing soft tissue structures, intervertebral disc herniation, and nerve root compression." },
+            { id: 7, section: 'SEC_A', text: "Complications of hip dislocation include which of the following except?", options: { A: "sciatic nerve injury", B: "avascular necrosis", C: "degenerative (Post traumatic) arthritis", D: "compartment syndrome." }, answer: "D", rationale: "Hip dislocations commonly lead to sciatic nerve palsies, femoral head avascular necrosis (AVN), and post-traumatic osteoarthritis. Compartment syndrome is a complication of closed fascial osteofascial spaces in limbs (e.g., lower leg or forearm), not the hip joint." },
+            { id: 8, section: 'SEC_A', text: "Which one of the following humeral fractures in children usually necessitates percutaneous pinning?", options: { A: "anatomic neck", B: "surgical neck", C: "shaft", D: "supracondylar", E: "lateral epicondyle" }, answer: "D", rationale: "Displaced supracondylar humerus fractures in children require closed reduction and percutaneous K-wire pinning to achieve stable alignment and prevent malunion (cubitus varus) or neurovascular compromise." },
+            { id: 9, section: 'SEC_A', text: "Which of the following are indications for immediate operative treatment of humeral shaft fractures?", options: { A: "radial nerve injury", B: "median nerve injury", C: "brachial artery injury", D: "fractures in adults", E: "unsuccessful closed reduction" }, answer: "C", rationale: "Vascular injury requiring surgical repair (e.g., brachial artery transection/occlusion) is an absolute indication for immediate operative exploration and fracture fixation. Closed radial nerve palsy in closed humerus shaft fractures is initially managed expectantly." },
+            { id: 10, section: 'SEC_A', text: "A 30-year-old male pedestrian presents with a posterior knee dislocation after being hit by a car. He has no distal pulses. The most appropriate next step in the management would be to:", options: { A: "Take the patient to operating room", B: "Reduce dislocation", C: "Obtain an arteriogram", D: "Check ankle-brachial index", E: "Get an MRI" }, answer: "B", rationale: "Knee dislocations with absent pulses require immediate closed reduction to eliminate vascular traction/kinking of the popliteal artery before obtaining secondary vascular imaging or surgical exploration." },
+            { id: 11, section: 'SEC_A', text: "Indications for operation in patients with acute fractures or dislocations of the cervical spine include all but which of the following?", options: { A: "Unstable fractures or dislocations", B: "Progressive neurologic deficits", C: "Established neurologic deficit", D: "Persistent bone fragments in the spinal canal" }, answer: "C", rationale: "A complete, long-standing, established neurological deficit (complete transection) without ongoing compression or mechanical instability does not benefit from emergency decompressive surgery compared to progressive deficits or persistent focal compression." },
+            { id: 12, section: 'SEC_A', text: "Which of the following diagnostic studies may be useful in the evaluation of de Quervain's disease?", options: { A: "Adson test", B: "Finkelstein test", C: "Two-point discrimination test", D: "Cervical spine radiograph", E: "Allen test" }, answer: "B", rationale: "Finkelstein’s test reproduces sharp pain over the radial styloid when the thumb is flexed inside a closed fist and the wrist is deviated ulnarward, diagnosing de Quervain's tenosynovitis." },
+            { id: 13, section: 'SEC_A', text: "Monteggia's fracture is best described as which of the following?", options: { A: "radial head fracture and proximal ulnar subluxation", B: "distal radius fracture and proximal ulnar subluxation", C: "ulnar styloid fracture and radial head subluxation", D: "proximal ulnar fracture and radial head subluxation" }, answer: "D", rationale: "By definition, a Monteggia fracture-dislocation consists of a fracture of the proximal ulnar shaft associated with dislocation/subluxation of the radial head." },
+            { id: 14, section: 'SEC_A', text: "Proper emergency room management of an open fracture generally may include the following, except?", options: { A: "Culture of the wound", B: "Antibiotic prophylaxis", C: "Tetanus prophylaxis", D: "X-rays of one joint above and below the region of injury", E: "Provisional reduction and splinting" }, answer: "A", rationale: "Emergency room pre-debridement wound swabs/cultures are inappropriate and unhelpful because they capture environmental contaminants rather than true pathogen causes of deep infection; administration of broad-spectrum IV antibiotics, tetanus prophylaxis, and realignment/splinting take priority." },
+            { id: 15, section: 'SEC_A', text: "Which of the following types of peripheral nerve injury associated with extremity trauma is/are usually best treated by delayed surgical repair?", options: { A: "neurapraxia", B: "neurotmesis", C: "axonotmesis", D: "digital nerve injury", E: "neuromalacia" }, answer: "B", rationale: "Blunt or traction-induced complete nerve transections (neurotmesis) are often managed with delayed primary repair (2–3 weeks post-injury) after the zone of neural injury and scar tissue boundary have fully demarcated." },
+            { id: 16, section: 'SEC_A', text: "Which metabolic bone disease is described as a quantitative decrease in bone mass and micro architectural deterioration of bone tissue?", options: { A: "osteomalacia", B: "rickets", C: "osteoporosis", D: "osteopetrosis", E: "Paget's disease" }, answer: "C", rationale: "Osteoporosis is defined as a systemic skeletal disorder marked by low bone mass and microarchitectural deterioration of bone tissue leading to enhanced bone fragility." },
+            { id: 17, section: 'SEC_A', text: "The Salter and Harris classification corresponds to physeal injury in children. The Salter II classification is", options: { A: "a transphyseal fracture that may appear as widening of the physis on plain radiograph", B: "a transphyseal fracture that exits through the metaphysis", C: "a transphyseal fracture that exits through the epiphysis", D: "a fracture that extends from the metaphysis to the bony epiphysis, crossing the physeal plate", E: "a crush injury to the physeal plate" }, answer: "B", rationale: "Salter-Harris Type II (the most common type) travels through the physis and exits through a triangular fragment of the metaphysis (Thurston-Holland sign)." },
+            { id: 18, section: 'SEC_A', text: "A 25 year old skater complains of wrist pain after slipping on the ice and falling on an outstretched hand. There is specific point tenderness over the anatomic snuffbox. There is no deformity. Which of the following is the most likely diagnosis?", options: { A: "Colles' fracture", B: "Scaphoid fracture", C: "Scaphoid lunate subluxation", D: "Lunate subluxation" }, answer: "B", rationale: "Point tenderness over the anatomical snuffbox following a fall on an outstretched hand (FOOSH) is clinically diagnostic of a scaphoid fracture until proven otherwise." },
+            { id: 19, section: 'SEC_A', text: "Which of the following organisms is most commonly found in pyogenic arthritis?", options: { A: "Escherichia coli", B: "Staphylococcus aureus", C: "Haemophilus influenzae", D: "Pseudomonas spp", E: "Streptococcus spp" }, answer: "B", rationale: "Staphylococcus aureus is the most common causative organism in septic (pyogenic) arthritis across all age groups." },
+            { id: 20, section: 'SEC_A', text: "Spondylolisthesis is", options: { A: "defined as forward slippage of one vertebra on another", B: "one hundred percent anterior translation of one vertebral body over another", C: "defined as a defect in the pars interarticularis caused by repetitive hyperextension", D: "common cause of back pain in children and adolescents", E: "narrowing of the spinal canal or neural foramina" }, answer: "A", rationale: "Spondylolisthesis refers to the anterior displacement/slippage of a superior vertebral body relative to the inferior vertebral body. (Option C describes spondylolysis)." },
+            { id: 21, section: 'SEC_A', text: "A 42 year old man feels a sudden sharp pain in the lower calf after jumping for a basketball. Examination reveals weak plantar flexion and dorsiflexion of the ankle with diffuse ecchymosis. Examining the patient prone with his legs over the edge of the examining table shows that he has no palpable defect, but squeezing the calf muscle fails to produce ankle plantar flexion. What is the diagnosis?", options: { A: "Sub fascial hematoma", B: "Torn Achilles tendon", C: "Torn plantaris tendon", D: "Torn gastrocnemius muscle", E: "Torn posterior tibial tendon" }, answer: "B", rationale: "A positive Thompson (Simmonds) test—where squeezing the calf fails to elicit passive plantarflexion—confirms complete rupture of the Achilles tendon." },
+            { id: 22, section: 'SEC_A', text: "A 55-year old man experiences a sudden pain in the right shoulder. He is unable to abduct the shoulder even after local injection of xylocaine into the painful spot in the shoulder. However, if the shoulder is passively abducted to about 90°, he is able to continue active abduction", options: { A: "Pericapsulitis of the shoulder", B: "Osteoarthritis of the shoulder", C: "Complete tear of the supraspinatus tendon", D: "Fracture of the lateral end of the clavicle", E: "Fracture of the greater tuberosity of the humerus" }, answer: "C", rationale: "The supraspinatus initiates the first 15°–30° of shoulder abduction. Once passively brought past 90°, the deltoid takes over, allowing the patient to maintain abduction." },
+            { id: 23, section: 'SEC_A', text: "Which of the following statement(s) is/are true concerning the diagnosis and management of pelvic fractures secondary to blunt trauma?", options: { A: "Most pelvic fractures are apparent on the basis of physical examination", B: "An infra-umbilical approach to peritoneal lavage in a patient with a major pelvic fracture may yield a false-positive rate approaching 50%", C: "If a large expanding pelvic hematoma is found at surgery, the intraabdominal injury should be dealt with, and the hematoma explored", D: "The application of pelvic external fixation may be used as the initial step in control of hemorrhage from pelvic fractures", E: "A urethral catheter should be placed immediately in patients with suspected pelvic fracture to allow early peritoneal lavage" }, answer: "D", rationale: "Pelvic external fixation or circumferential binders stabilize the disrupted pelvic ring, reduce internal volume, and tamponade retroperitoneal venous hemorrhage." },
+            { id: 24, section: 'SEC_A', text: "In a man with a history of pelvic trauma, passage of a urinary catheter must be preceded by", options: { A: "X ray of the pelvis.", B: "CT scan of the abdomen.", C: "determining pelvic stability.", D: "external fixation of the pelvis.", E: "examination of rectum, prostate, and perineum." }, answer: "E", rationale: "Clinical examination for high-riding prostate, blood at the urethral meatus, or perineal hematoma is necessary to rule out urethral transection prior to catheterization." },
+            { id: 25, section: 'SEC_A', text: "The diagnosis of shock requires the presence of", options: { A: "hypotension.", B: "metabolic acidosis.", C: "respiratory alkalosis.", D: "cellular hypoperfusion.", E: "a change in venous pressure." }, answer: "D", rationale: "Shock is defined fundamentally as systemic inadequacy of tissue perfusion resulting in cellular hypoxia and hypoperfusion." },
+            { id: 26, section: 'SEC_A', text: "In a multiple-trauma patient, the screening X rays that are usually obtained are", options: { A: "pelvis, chest, and skull.", B: "chest, cervical spine, and pelvis.", C: "Abdomen, skull, and pelvis.", D: "chest, abdomen, and pelvis.", E: "cervical spine, abdomen, and pelvis." }, answer: "B", rationale: "Traditional ATLS initial trauma series screening plain radiographs include lateral cervical spine, AP chest, and AP pelvis." },
+            { id: 27, section: 'SEC_A', text: "Which of the following best differentiates cardiac tamponade from tension pneumothorax?", options: { A: "Tachycardia", B: "Hypotension", C: "Chest hyperresonance", D: "Narrowed pulse pressure", E: "Jugular venous distention" }, answer: "C", rationale: "Both cause hypotension and elevated jugular venous pressure; unilateral absent breath sounds and hyperresonance on percussion distinguish tension pneumothorax from cardiac tamponade." },
+            { id: 28, section: 'SEC_A', text: "Twenty minutes after a motor vehicle crash, a 20-year-old man has a heart rate of 70 beats per minute and a blood pressure of 80/40 mm Hg. His extremities are warm. These findings are best explained by", options: { A: "spinal shock.", B: "septic shock.", C: "neurogenic shock.", D: "cardiogenic shock.", E: "hypovolemic shock (uncompensated)." }, answer: "C", rationale: "Neurogenic shock causes loss of sympathetic vascular tone, manifesting as hypotension accompanied by relative bradycardia and warm, dry skin." },
+            { id: 29, section: 'SEC_A', text: "Detection of air under the diaphragm on X ray of the abdomen following trauma should be promptly followed by", options: { A: "laparotomy.", B: "laparoscopy.", C: "CT scan of the abdomen.", D: "ultrasound of the abdomen.", E: "diagnostic peritoneal lavage (DPL)." }, answer: "A", rationale: "Pneumoperitoneum (free intra-abdominal air) after trauma indicates perforation of a hollow viscus and requires urgent exploratory laparotomy." },
+            { id: 30, section: 'SEC_A', text: "The first step in managing supine hypotension in late pregnancy is", options: { A: "plasma infusion.", B: "vasoconstrictors.", C: "cardiac stimulants.", D: "bolus crystalloid infusion.", E: "manual displacement of the uterus." }, answer: "E", rationale: "Manually displacing the gravid uterus to the left relieves aortocaval compression by the fetus, restoring venous return and cardiac output." },
+            { id: 31, section: 'SEC_A', text: "Fluid resuscitation of the burn patient is best monitored by", options: { A: "urine output.", B: "respiratory rate.", C: "venous pressure.", D: "acid-base status.", E: "level of consciousness." }, answer: "A", rationale: "Hourly urine output (target 0.5 mL/kg/h in adults) is the standard and most reliable clinical indicator of end-organ perfusion during fluid resuscitation in burn injury." },
+            { id: 32, section: 'SEC_A', text: "Bleeding from a laceration in the thigh is initially best managed by", options: { A: "direct pressure.", B: "fluid resuscitation.", C: "application of a tourniquet.", D: "controlling the femoral artery.", E: "clamping of the bleeding vessel." }, answer: "A", rationale: "Direct manual pressure over the site of hemorrhage is the primary and most effective initial method to control external bleeding." },
+            { id: 33, section: 'SEC_A', text: "Which of the following must be managed first in the multiply injured patient?", options: { A: "Cardiac tamponade", B: "Massive hemothorax", C: "Tension pneumothorax", D: "Bleeding from the thigh", E: "Foreign body in the pharynx" }, answer: "E", rationale: "Following standard Advanced Trauma Life Support (ATLS) priorities (Airway, Breathing, Circulation), clearing an airway obstruction (foreign body in pharynx) takes precedence over all other steps." },
+            { id: 34, section: 'SEC_A', text: "An open pneumothorax is best managed initially by", options: { A: "thoracotomy.", B: "occlusive dressing.", C: "chest tube insertion.", D: "endotracheal intubation.", E: "mechanical ventilation" }, answer: "B", rationale: "Immediate application of a sterile occlusive dressing taped on three sides creates a one-way flutter valve, preventing air ingress while permitting trapped air to exit." },
+            { id: 35, section: 'SEC_A', text: "Effective management of most trauma patients in shock requires", options: { A: "blood transfusion.", B: "pelvic stabilization.", C: "ultrasound of the abdomen.", D: "administration of vasoconstrictors.", E: "identification and stopping of hemorrhage." }, answer: "E", rationale: "Hemorrhagic shock is the primary cause of post-traumatic shock; definitive management requires rapid detection and surgical or mechanical control of active bleeding." },
+            { id: 36, section: 'SEC_A', text: "Patients in shock from pelvic fractures initially require", options: { A: "pelvic angiography.", B: "CT scan of the pelvis.", C: "massive blood transfusion.", D: "diagnostic peritoneal lavage.", E: "external control of pelvic volume." }, answer: "E", rationale: "Immediate reduction and stabilization of pelvic ring volume using a binder or external fixator reduces bleeding by promoting retroperitoneal tamponade." },
+            { id: 37, section: 'SEC_A', text: "The head-injured patient in shock requires", options: { A: "craniotomy.", B: "hyperventilation.", C: "immediate CT scan of the head.", D: "intracranial pressure monitoring.", E: "assessment for a source of hemorrhage." }, answer: "E", rationale: "Isolated intracranial injuries rarely cause neurogenic or hypovolemic shock; shock in a brain-injured patient warrants a search for systemic sources of hidden hemorrhage (chest, abdomen, pelvis, long bones)." },
+            { id: 38, section: 'SEC_A', text: "The highest priority in management of multiple patients involved in a bus crash is given to", options: { A: "shock.", B: "major fractures.", C: "spinal cord injuries.", D: "airway compromise.", E: "severe chest injuries." }, answer: "D", rationale: "Airway management always takes top priority in emergency triage and primary life support assessments." },
+            { id: 39, section: 'SEC_A', text: "The most specific test for assessing abdominal trauma is", options: { A: "IVP.", B: "CT scan.", C: "abdominal X rays.", D: "diagnostic peritoneal lavage (DPL).", E: "focused assessment sonography in trauma (FAST)." }, answer: "B", rationale: "In hemodynamically stable patients, abdominal CT scan provides the highest anatomical specificity for evaluating solid organ injuries and retroperitoneal pathology." },
+            { id: 40, section: 'SEC_A', text: "A 20-year-old man is brought to the emergency department following a fall from a height. He is alert and complaining of neck pain. Of the following, which is the first step in management of this patient?", options: { A: "Insert an oral airway.", B: "Obtain immediate cervical spine X rays.", C: "Apply a semirigid cervical collar.", D: "Intubate with bimanual inline cervical spine stabilization.", E: "Attempt nasotracheal intubation with cervical spine control." }, answer: "C", rationale: "An alert patient with potential cervical spine trauma must be immediately immobilized in a rigid neck collar to protect against secondary spinal cord injury." },
+            { id: 41, section: 'SEC_A', text: "The hypothermic trauma patient presenting to the emergency room without vital signs should be", options: { A: "defibrillated.", B: "given vasodilators.", C: "pronounced dead.", D: "aggressively rewarmed.", E: "given cardiac stimulants." }, answer: "D", rationale: "Severe hypothermia exerts neuroprotective effects and depresses vital signs. A patient is not pronounced dead until they are 'warm and dead'; resuscitation and aggressive rewarming must continue simultaneously." },
+            { id: 42, section: 'SEC_A', text: "A heart rate of 85 beats per minute after an injury may be considered abnormal in which of the following?", options: { A: "The elderly patient", B: "The young athlete", C: "The pregnant patient", D: "The head-injured patient", E: "The patient with blunt chest trauma" }, answer: "B", rationale: "High-performance athletes normally have baseline resting bradycardia (40–50 bpm). A heart rate of 85 bpm in an athlete may reflect early compensatory tachycardia secondary to blood loss." },
+            { id: 43, section: 'SEC_A', text: "Which of the following statements is not true with regard to a polytrauma patient?", options: { A: "A drop in body temperature occurs.", B: "There is a generalised immune response", C: "The patient has compensatory mechanisms to blood loss.", D: "The early management is protocol-driven.", E: "A protocol-driven system should never be transgressed" }, answer: "E", rationale: "While standard protocols (e.g., ATLS) guide trauma resuscitation, clinical judgment and individualized patient factors may require deviation from rigid protocols when unexpected pathology arises." },
+            { id: 44, section: 'SEC_A', text: "Union of a simple transverse fracture of the tibia in an adult normally takes", options: { A: "6 weeks.", B: "8 weeks.", C: "12 weeks.", D: "18 weeks.", E: "26 weeks." }, answer: "D", rationale: "Tibial cortical bone heals slowly due to its limited subcutaneous soft tissue coverage; a simple adult transverse tibial shaft fracture typically requires 16 to 20 weeks (average 18 weeks) to achieve full union." },
+            { id: 45, section: 'SEC_A', text: "A greenstick fracture", options: { A: "Occurs chiefly in the elderly", B: "Is a fatigue fracture", C: "Is a spiral fracture of a tubular bone", D: "Is a fracture where part of the cortex is intact and part is crumpled or cracked", E: "is multifragmentary" }, answer: "D", rationale: "Greenstick fractures are pediatric incomplete fractures in which the cortex on the tension side breaks while the opposite cortex remains intact or bent." },
+            { id: 46, section: 'SEC_A', text: "The most serious complication of an open fracture is:", options: { A: "Haemorrhage", B: "Infection", C: "Delayed union", D: "Non-union", E: "Ischaemia contracture of muscles" }, answer: "B", rationale: "Open fractures expose bone and deep tissues to external contamination, making deep osteomyelitis and infection the most significant long-term complication leading to non-union and amputation." },
+            { id: 47, section: 'SEC_A', text: "Three days after sustaining a fracture of the shaft of the femur, a 45-year old man suddenly becomes confused, dyspnoeic and has a low-grade fever. Some petechial rashes are observed. You will suspect most strongly:", options: { A: "Lobar pneumonia", B: "Septicaemia", C: "Pulmonary embolism", D: "Fat embolism", E: "Cerebrovascular accident" }, answer: "D", rationale: "The triad of pulmonary distress (dyspnea), neurological confusion, and petechial rash occurring 24–72 hours after long-bone immobilization is diagnostic of Fat Embolism Syndrome." },
+            { id: 48, section: 'SEC_A', text: "The following of the Fracture of the clavicle:", options: { A: "Occurs most commonly in the middle third and usually as a result of direct violence", B: "If in the middle third, the medical fragment is pulled upward and backward and the lateral fragment downward and forward", C: "Causes the patient to tilt his head to the contralateral side", D: "Is best treated with a 'figure-of-eight' bandage which is re-applied every other day and retained for six weeks", E: "Is commonly complicated by non-unions and mal-unions." }, answer: "A", rationale: "Clavicle fractures occur predominantly in the middle third (80% of cases) commonly caused by fall onto the shoulder or direct impact." },
+            { id: 49, section: 'SEC_A', text: "Which of the following statements concerning the assessment of trauma is FALSE?", options: { A: "The mechanism of injury and the injury produced are the keystones in management.", B: "It is as essential to identify overt (obvious) injuries as it is to identify the covert (hidden) injury.", C: "Penetrating injuries usually involve the use of weapons.", D: "Blunt injuries are the outcome of acceleration/deceleration, such as falls or road traffic accidents (RTAs).", E: "Knife injury over a limb is easy to evaluate" }, answer: "E", rationale: "Knife injuries can cause deep neurovascular, tendon, or fascial lacerations through tiny skin entry wounds, making assessment deceptively difficult." },
+            { id: 50, section: 'SEC_A', text: "An example of a Fractures that which do not impact include", options: { A: "fracture of a vault of the skull", B: "a compression fracture", C: "a simple fracture", D: "a transverse fracture of the patella.", E: "fracture of the neck of femur" }, answer: "D", rationale: "Patellar fractures pulled apart by active quadriceps contraction undergo distraction rather than impaction." },
+            { id: 51, section: 'SEC_A', text: "A 24-year-old woman presents to the emergency room with a dislocated knee. In transferring the patient from stretcher to examining table, the knee is spontaneously reduced. Physical examination reveals no palpable or 'Dopplerable' pulses in the foot on the affected side and booming pulses in the foot on the nonaffected side. Proper treatment would include which of the following?", options: { A: "Doppler evaluation of the arteries in the lower extremity followed by arteriography if the Doppler study was abnormal.", B: "Magnetic resonance imaging (MRI) of the affected leg.", C: "Close follow-up examination.", D: "Emergent transfer to the operating room for exploration of the popliteal artery.", E: "Immobilization of the knee with gentle warming of the extremity and elevation" }, answer: "D", rationale: "Persistent ischemia (absent signals) following knee reduction indicates popliteal artery transection or thrombosis requiring immediate surgical exploration to avoid limb amputation." },
+            { id: 52, section: 'SEC_A', text: "The Ilizarov device aids in management of tibial fractures because of its ability to:", options: { A: "Stabilize acute fractures.", B: "Correct angular deformities in cases of malunion.", C: "Transport bone by distraction callotasis.", D: "Noninvasively provide fixation for juxta-articular fractures, such as the tibial plateau and pylon.", E: "All of the above." }, answer: "E", rationale: "Ring external fixators (Ilizarov) provide multiplanar fixation, correct deformities, and facilitate bone transport for bone defects and complex periarticular fractures." },
+            { id: 53, section: 'SEC_A', text: "Which of the following bones in the foot, is most prone to vascular compromise", options: { A: "Calcaneus.", B: "Navicular.", C: "Talus.", D: "Cuboid", E: "Cuneiforms" }, answer: "C", rationale: "The talus has a retrograde blood supply and lacks muscular attachments, placing it at high risk of avascular necrosis following displaced neck fractures." },
+            { id: 54, section: 'SEC_A', text: "The most COMMON REASON for surgical amputation in the GENERAL POPULATION is:", options: { A: "Trauma.", B: "Tumour", C: "Infection.", D: "Congenital deformity", E: "Ischemia." }, answer: "E", rationale: "Peripheral vascular disease and ischemic complications of diabetes account for over 80% of surgical amputations in the general population." },
+            { id: 55, section: 'SEC_A', text: "Hematogenous osteomyelitis most frequently affects:", options: { A: "The diaphysis of long bones.", B: "The epiphysis.", C: "The metaphysis of long bones.", D: "Flat bones.", E: "Cuboidal bones" }, answer: "C", rationale: "Sluggish blood flow through hair-pin vascular loops in growing metaphyseal regions makes long bone metophyses the primary site for bacterial seeding." },
+            { id: 56, section: 'SEC_A', text: "Barlow's is related to the diagnosis of", options: { A: "A talipes equino- varus", B: "Congenital hip dislocation", C: "ulnar nerve palsy", D: "Genu varum", E: "fractured neck of femur" }, answer: "B", rationale: "The Barlow test evaluates developmental dysplasia of the hip (DDH) by adducting and applying posterior pressure to dislocate a lax femoral head." },
+            { id: 57, section: 'SEC_A', text: "Ewing's tumour affecting the humerus", options: { A: "Is a metastatic tumour because it is malignant", B: "should be treated with immediate amputation to avoid spread", C: "looks like a cut onion on x-ray", D: "has a soap bubble appearance on x-ray", E: "displays sunray spicules on x-ray" }, answer: "C", rationale: "Ewing sarcoma stimulates aggressive, multi-layered 'onion-skin' periosteal reaction visible on plain radiographs." },
+            { id: 58, section: 'SEC_A', text: "Dead bone is recognized an x-ray because", options: { A: "It is more radiolucent than normal", B: "It is more radio-opaque than normal", C: "Osteophytes grow from it", D: "It has a Soap bubble appearance", E: "Display codman's triangle" }, answer: "B", rationale: "Avascular dead bone (sequestrum) lacks blood supply and cannot undergo hyperemic osteopenia, making it appear relative denser (more radio-opaque) than surrounded vascularized hyperemic living bone." },
+            { id: 59, section: 'SEC_A', text: "Bennett's fracture is", options: { A: "Reverse Colles fracture", B: "Fracture of the scaphoid bone in the wrist", C: "Fracture of the radial styloid chauffeur's fracture", D: "Fracture dislocation of the first metacarpal", E: "Cause of mallet finger" }, answer: "D", rationale: "Bennett's fracture is an intra-articular fracture-subluxation at the base of the thumb (1st) metacarpal." },
+            { id: 60, section: 'SEC_A', text: "In a tear of the supraspinatus tendon, the typical feature is:", options: { A: "Tenderness over the shoulder", B: "Stiffness of the shoulder", C: "Inability to initiate abduction, but when abduction is passively initiated the patient is able to continue", D: "Inability to adduct the shoulder", E: "Palpable defect in the supraspinatus tendon" }, answer: "C", rationale: "The supraspinatus initiates early abduction; tearing prevents active initiation, but passive abduction to 30° allows the deltoid muscle to complete full movement." },
+            { id: 61, section: 'SEC_A', text: "In a Colles' fracture:", options: { A: "The wrist is immobilized in palmar flexion and ulnar deviation after reduction", B: "An above elbow plaster is usually applied especially if the fracture is comminuted", C: "Immobilization is usually for 3-4 weeks", D: "Complications include reflex sympathetic dystrophy, shoulder-hand syndrome, rupture of the extensor pollicis longus tendon and Volkmann's ischaemic contracture of the fore-arm", E: "Is most common in middle-aged men" }, answer: "A", rationale: "Closed reduction of Colles' fractures is immobilized in palmarflexion and ulnar deviation (Cotton-Loder position) to counteract initial dorsal and radial displacement." },
+            { id: 62, section: 'SEC_A', text: "A 30-year old woman in the front seat of a car injures her right hip following an accident involving the car. The right leg is shortened, internally rotated, flexed and adducted. The most likely clinical diagnosis is:", options: { A: "Basal fracture of the femur", B: "Subcapital fracture of the femur", C: "Posterior dislocation of the hip", D: "Anterior dislocation of the hip", E: "Central dislocation of the hip" }, answer: "C", rationale: "Dashboard impacts drive the femur posteriorly, presenting with a flexed, adducted, internally rotated, and shortened extremity." },
+            { id: 63, section: 'SEC_A', text: "Supracondylar fracture of the femur in a middle aged business man is best treated by:", options: { A: "Manipulation and application of above knee plaster", B: "Manipulation and application of a full hip spica", C: "Open reduction and fixation with a blade plate", D: "Open reduction and intramedullary nailing", E: "Weight traction on the leg by skin or skeletal traction" }, answer: "C", rationale: "Distal femoral supracondylar fractures in adults require rigid anatomical internal fixation (using fixed-angle blade plates, distal femoral locking plates, or retrograde nails) to allow early joint mobilization." },
+            { id: 64, section: 'SEC_A', text: "The main pathology in a jersey finger is", options: { A: "rupture of the flexor digitorum superficialis with inability to flex the proximal interphalangeal (IP) joint", B: "rupture of the flexor digitorum superficialis with inability to flex the distal IP joint", C: "rupture of the flexor digitorum profundus with inability to flex the proximal IP joint", D: "rupture of the flexor digitorum profundus with inability to flex the distal IP joint", E: "none of the above" }, answer: "D", rationale: "Jersey finger is an avulsion of the Flexor Digitorum Profundus (FDP) tendon insertion at the distal phalanx base, causing loss of active flexion at the distal interphalangeal (DIP) joint." },
+            { id: 65, section: 'SEC_A', text: "The laryngeal Mask Airway (LMA) is used for securing airway of a patient in all of the following conditions, EXCEPT?", options: { A: "In a child undergoing and elective routine eye surgery", B: "In a difficult intubation", C: "In a patient with a large tumor in the oral cavity", D: "In cardiopulmonary resuscitation", E: "In surgery with less than 1 hours of duration" }, answer: "C", rationale: "Large oral cavity masses mechanically obstruct seat placement of the supraglottic LMA cuff and pose risk of airway tissue trauma or bleeding." },
+            { id: 66, section: 'SEC_A', text: "Which of the following conditions is the most commonly seen congenital orthopaedic anomaly?", options: { A: "Congenital talipes equinovarus.", B: "Congenital vertical talus.", C: "Fibular hemimelia.", D: "Tibial hemimelia.", E: "Ball-and-socket ankle." }, answer: "A", rationale: "Clubfoot (CTEV) is one of the most common congenital musculoskeletal anomalies, occurring in approximately 1 to 2 per 1,000 live births." },
+            { id: 67, section: 'SEC_A', text: "A 47-year-old African-American comes to see you at the clinic for a general checkup appointment. She works as a middle school teacher and has a 25 pack-year smoking history. She has a body mass index (BMI) of 22 kg/m² and is a vegetarian. Her last menstrual period was 1 week ago. Her current medications include oral contraceptive pills. Which of the following is a risk factor for osteoporosis in this patient?", options: { A: "Age", B: "BMI", C: "Estrogen therapy", D: "Race", E: "Smoking history" }, answer: "E", rationale: "Cigarette smoking accelerates bone loss by directly impairing osteoblast function and accelerating hepatic metabolism of estrogen." },
+            { id: 68, section: 'SEC_A', text: "A 25-year-old male presents to the Accidents and Emergency department with pain in his Right knee. He was roughly tackled in a football game. He felt a snapping and sudden pain in his knee. Minutes later, his knee was swollen and painful. On physical exam you note an effusion. Which of the following is the most likely physical exam finding in this patient?", options: { A: "Laxity to valgus stress", B: "Laxity to varus stress", C: "Clicking and locking of the joint in motion", D: "Anterior Translation of the tibia relative to the femur", E: "Posterior Translation of the tibia relative to the femur" }, answer: "D", rationale: "Acute non-contact or contact popping with immediate hemarthrosis indicates an ACL rupture, diagnosed on exam by excessive anterior tibial displacement (Lachman or Anterior Drawer test)." },
+            { id: 69, section: 'SEC_A', text: "A 17-year-old high school student accidentally sawed off his index finger. Which of the following is the correct method of transporting the amputated finger?", options: { A: "Submerge the finger in ice water", B: "Wrap the finger in moist gauze", C: "Wrap the finger in moist gauze and place on ice", D: "Wrap the finger in moist gauze, put in a plastic bag and placed on ice", E: "Wrap the finger in moist gauze and submerge in ice water" }, answer: "D", rationale: "Direct contact with water or ice causes tissue maceration and frostbite damage. The part should be wrapped in sterile saline-moistened gauze, sealed inside a waterproof plastic bag, and placed on ice water." },
+
+            // SECTION B (70-79)
+            { id: 70, section: 'SEC_B', text: "Which of the following are indications for arthroscopy of the knee?\n1. Diagnose and treat torn meniscus\n2. Remove loose bodies\n3. Check for avascular necrosis", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "C", rationale: "Arthroscopy allows evaluation and treatment of intra-articular structures like meniscal tears and loose bodies. Subchondral avascular necrosis is evaluated non-invasively via MRI." },
+            { id: 71, section: 'SEC_B', text: "Which of the following statements regarding back pain are true?\n1. The chances of anyone having back pain at some time in their life is around 80 percent\n2. Over 80 per cent of episodes of back pain settle within 6 weeks.\n3. 'Yellow flags' are worrying but less critical than 'red flags'", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "E", rationale: "Lifetime prevalence of low back pain is ~80%, most resolve within 6 weeks, and red flags indicate serious structural/neurological pathology while yellow flags denote psychosocial risk factors for chronicity." },
+            { id: 72, section: 'SEC_B', text: "Which of the following statements regarding the Gustilo and Anderson classification of fractures is true?\n1. It takes account of the body part involved.\n2. It takes account of whether or not there is soft-tissue cover of fractured bone.\n3. It takes account of contamination", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "D", rationale: "Gustilo-Anderson grading evaluates wound size, tissue coverage/stripping, and contamination level, but does not depend on the specific anatomical bone involved." },
+            { id: 73, section: 'SEC_B', text: "Fractures occurring in children differ from those in adults in the following respects\n1. Mal Union can be partly corrected by growth\n2. Stiffness is uncommon after immobilization\n3. Immobilization by splinting is the method of choice in treatment", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "E", rationale: "Pediatric bones possess high remodeling potential under physeal growth, rarely develop persistent joint stiffness, and are predominantly managed conservatively with splinting or casts." },
+            { id: 74, section: 'SEC_B', text: "Regarding the diagnosis and treatment of cardiac tamponade, which of the following statements is/are true?\n1. Needle pericardiocentesis can give a false-negative result.\n2. Beck's classic triad of signs of cardiac tamponade include distended neck veins, pulsus paradoxicus, and hypotension.\n3. Accumulation of greater than 250 ml. of blood in the pericardial sac is necessary to impair cardiac output", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "A", rationale: "Needle pericardiocentesis has high false-negative rates with clotted blood. Beck's triad includes distant heart sounds, distended neck veins, and hypotension (pulsus paradoxicus is a sign, but not part of Beck's triad). Acute accumulation of as little as 50–100 mL of blood can cause rapid tamponade." },
+            { id: 75, section: 'SEC_B', text: "A cricketer complains of pain in his shin which has been present for several months but which got worse today after a prolonged bout of fast bowling. What class of injury is this likely to belong to?\n1. Chronic\n2. Acute intrinsic\n3. Acute extrinsic", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "A", rationale: "Longstanding shin pain exacerbated by repetitive overuse (e.g., fast bowling) represents a chronic overuse injury (e.g., tibial stress syndrome or stress fracture)." },
+            { id: 76, section: 'SEC_B', text: "Which of the following statements about bone tumours are true?\n1. The extent of skeletal metastases can best be demonstrated on a bone scan\n2. All patients with suspected bone tumours should have plain X-rays.\n3. The biopsy track should be kept well away from any possible future surgical approach", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "C", rationale: "Radionuclide bone scans map total skeletal lesions and plain X-rays are the primary baseline evaluation. Statement 3 is False because the biopsy track MUST be placed directly along the planned operative incision so it can be resected en bloc during limb-salvage surgery." },
+            { id: 77, section: 'SEC_B', text: "Which of the following statements regarding slipped upper femoral epiphysis are true?\n1. It may present with pain in the knee.\n2. It occurs in boys around the age of puberty.\n3. The other hip is also commonly involved.", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "E", rationale: "SCFE commonly manifests as referred knee/thigh pain in pubertal boys, and bilateral involvement occurs in up to 20–40% of patients." },
+            { id: 78, section: 'SEC_B', text: "A 2-year-old disabled child is brought to A&E with a bucket handle metaphyseal fracture of the distal femur and callus from a previous fracture. On exam he has multiple bruises of varying ages. What is the diagnosis that must be most carefully investigated?\n1. Osteogenesis imperfecta\n2. Non-accidental injury (NAI)\n3. Pathological fractures through a metastasis from a nephroblastoma.", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "B", rationale: "Metaphyseal corner/bucket-handle fractures, fractures at multiple stages of healing, and bruises of varying ages in a toddler are classical hallmarks of Non-Accidental Injury (child abuse)." },
+            { id: 79, section: 'SEC_B', text: "Kofi is a 19 year old student who sustained a fracture of the right midshaft radius and ulna. The cast has been removed after 6 weeks and he is referred for physiotherapy. What equipment is the physiotherapist likely to use during rehabilitation?\n1. Parallel bars\n2. Wax bath\n3. Nautical wheel", options: { A: "1 only", B: "2 only", C: "1 and 2 only", D: "2 and 3 only", E: "1, 2, and 3" }, answer: "D", rationale: "Paraffin wax baths relieve post-cast wrist/hand stiffness, and nautical wheels promote shoulder/forearm rotational mobility. Parallel bars are used for lower extremity gait rehabilitation." },
+
+            // SECTION C (80-119)
+            { id: 80, section: 'SEC_C', text: "Congenital Hip Dislocation: Is now called developmental dysplasia of the hip because it has been proven to be a form of neoplasm", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "It is termed 'developmental' because dysplasia can develop dynamically after birth; it is a structural developmental defect, not a neoplasm." },
+            { id: 81, section: 'SEC_C', text: "Congenital Hip Dislocation: It is said to be relatively rare in Africans because they carry their babies on their back", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Back-carrying maintains infant hips in flexion and abduction, promoting deep acetabular coverage and reducing dislocation rates." },
+            { id: 82, section: 'SEC_C', text: "Congenital Hip Dislocation: It is diagnosed when there is complete dislocation of the hip joint", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "DDH represents a spectrum ranging from mild acetabular dysplasia and subluxation to complete dislocation." },
+            { id: 83, section: 'SEC_C', text: "Congenital Hip Dislocation: Genetic predisposition is of no consequence in the hip dysplasia", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Genetic factors (e.g., inherited familial joint laxity) play a significant predisposing role." },
+            { id: 84, section: 'SEC_C', text: "Congenital Hip Dislocation: Can be clinically suspected where there is asymmetry in the buttocks", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Asymmetric gluteal or thigh skin folds are a classic screening sign for DDH." },
+            { id: 85, section: 'SEC_C', text: "Congenital clubfoot: It is known as talipes equinovarus because the forefoot is deviated laterally", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "The forefoot is deviated medially (adducted) in talipes equinovarus." },
+            { id: 86, section: 'SEC_C', text: "Congenital clubfoot: The calf is reduced in size", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Calf muscle hypoplasia/atrophy is a persistent clinical feature of congenital clubfoot." },
+            { id: 87, section: 'SEC_C', text: "Congenital clubfoot: It may be associated with other deformities like spina bifida", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Secondary clubfoot can result from underlying neuromuscular defects like myelomeningocele/spina bifida." },
+            { id: 88, section: 'SEC_C', text: "Congenital clubfoot: Surgery is the treatment of choice but by an experienced surgeon", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Non-surgical serial casting (Ponseti method) is the first-line treatment of choice; extensive open surgery is reserved for failures." },
+            { id: 89, section: 'SEC_C', text: "Congenital clubfoot: Equinus means the ankle is a dorsiflexion", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Equinus refers to fixed plantarflexion of the ankle." },
+            { id: 90, section: 'SEC_C', text: "Disadvantages of skin traction include: Inadequate immobilization", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Skin traction can only apply light weight (up to 3–5 kg) and cannot provide rigid fracture immobilization." },
+            { id: 91, section: 'SEC_C', text: "Disadvantages of skin traction include: Long confinement to bed", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Traction management requires prolonged bed rest, increasing risks of systemic recumbency complications." },
+            { id: 92, section: 'SEC_C', text: "Disadvantages of skin traction include: Non-union from excessive destruction of the fracture", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Skin traction does not cause physical 'destruction' of bone; excessive traction can cause distraction, but this is rare with light skin weights." },
+            { id: 93, section: 'SEC_C', text: "Disadvantages of skin traction include: Cannot be used successfully in children as they cannot lie still", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Skin traction (e.g., Bryant's traction or gallows traction) is widely and successfully used in infants and young children." },
+            { id: 94, section: 'SEC_C', text: "Myositis ossificans of the elbow: Is a complication of supracondylar fracture", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Heterotopic bone formation around the brachialis muscle can complicate elbow trauma or supracondylar fractures." },
+            { id: 95, section: 'SEC_C', text: "Myositis ossificans of the elbow: Presents as increasing immobility and elbow joints few weeks after injury", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Progressive loss of motion accompanied by localized elbow pain weeks after injury signals myositis development." },
+            { id: 96, section: 'SEC_C', text: "Myositis ossificans of the elbow: Is managed by stretching of the elbow and passive movement", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Aggressive passive stretching and forced movement exacerbate local tissue injury and worsen heterotopic ossification; treatment requires gentle active motion and rest." },
+            { id: 97, section: 'SEC_C', text: "Myositis ossificans of the elbow: Surgery should be avoided at all times", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Excision can be performed once the heterotopic bone has fully matured (typically 12–18 months post-injury)." },
+            { id: 98, section: 'SEC_C', text: "Myositis ossificans of the elbow: Gives a painful unstable Elbow", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Myositis ossificans leads to joint stiffness/ankylosis, not instability." },
+            { id: 99, section: 'SEC_C', text: "A 65 year old man complains of stiffness in wrist/fingers after removal of 6-week Colles POP. Cause may be POP having been there for too long", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Prolonged plaster immobilization leads to capsular shortening, soft tissue contractures, and joint stiffness." },
+            { id: 100, section: 'SEC_C', text: "A 65 year old man complains of stiffness in wrist/fingers after removal of 6-week Colles POP. Cause may be Sudeck's atrophy", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Complex Regional Pain Syndrome (Sudeck's atrophy) post-Colles' fracture causes severe stiffness, burning pain, and edema." },
+            { id: 101, section: 'SEC_C', text: "A 65 year old man complains of stiffness in wrist/fingers after removal of 6-week Colles POP. Cause may be intra-articular adhesions", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Joint immobilization and organized periarticular hematomas promote intra-articular fibrous adhesion formation." },
+            { id: 102, section: 'SEC_C', text: "A 65 year old man complains of stiffness in wrist/fingers after removal of 6-week Colles POP. Cause may be old age", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Older age reduces soft tissue elasticity and slows functional recovery following joint immobilization." },
+            { id: 103, section: 'SEC_C', text: "A 65 year old man complains of stiffness in wrist/fingers after removal of 6-week Colles POP. Cause may be excessive movement of finger swelling POP", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Active finger movement during cast immobilization prevents finger stiffness; stiffness results from lack of movement." },
+            { id: 104, section: 'SEC_C', text: "Physiotherapy modality check: Water", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Water (hydrotherapy) IS a standard physical therapy modality (statement asks 'except')." },
+            { id: 105, section: 'SEC_C', text: "Physiotherapy modality check: Paraffin wax", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Paraffin wax IS a standard physiotherapy thermotherapy modality (statement asks 'except')." },
+            { id: 106, section: 'SEC_C', text: "Physiotherapy modality check: Cryotherapy", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Cryotherapy IS a core physiotherapy modality (statement asks 'except')." },
+            { id: 107, section: 'SEC_C', text: "Physiotherapy modality check: Massage and diet therapy is EXCLUDED from standard physical modalities", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "While massage is physical therapy, diet therapy belongs to clinical nutrition/dietetics, making this the correct excluded item ('except')." },
+            { id: 108, section: 'SEC_C', text: "Physiotherapy modality check: Exercises", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Therapeutic exercise IS the primary cornerstone of physiotherapy." },
+            { id: 109, section: 'SEC_C', text: "Neuromuscular disorders: Cerebral palsy may be caused by sickle cell disease", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Sickle cell vaso-occlusive crises in early infancy can cause cerebrovascular accidents (strokes), resulting in secondary cerebral palsy." },
+            { id: 110, section: 'SEC_C', text: "Neuromuscular disorders: The Salk vaccine is more effective than the Sabin vaccine in prevention", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "The oral attenuated Sabin vaccine provides mucosal IgA immunity superior to inactivated injectable Salk vaccine, curbing community transmission." },
+            { id: 111, section: 'SEC_C', text: "Neuromuscular disorders: Cerebral palsy may be caused by Asphyxia neonatorum", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Perinatal hypoxia/asphyxia causes hypoxic-ischemic encephalopathy, a major etiology of cerebral palsy." },
+            { id: 112, section: 'SEC_C', text: "Neuromuscular disorders: Paralysis in poliomyelitis is a flaccid type", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Poliovirus destroys anterior horn cells in the spinal cord, causing lower motor neuron asymmetric flaccid paralysis." },
+            { id: 113, section: 'SEC_C', text: "Neuromuscular disorders: The protein involved in Duchenne's Muscular Dystrophy is Dextran", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "The gene defect in DMD disrupts synthesis of dystrophin, not dextran (a complex glucose polysaccharide)." },
+            { id: 114, section: 'SEC_C', text: "Growth plate fractures: Salter-Harris type 1 is the commonest", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Salter-Harris Type II is the most common physeal fracture type (~75% of cases)." },
+            { id: 115, section: 'SEC_C', text: "Growth plate fractures: Salter-Harris type 2 has an intra-articular extension", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Type II fractures exit through the metaphysis and spare the epiphysis/joint space. (Types III and IV are intra-articular)." },
+            { id: 116, section: 'SEC_C', text: "Growth plate fractures: The prognosis is worse for type 2 than it is for type 3", options: { A: "TRUE", B: "FALSE" }, answer: "B", rationale: "Intra-articular Type III fractures carry a worse prognosis for joint congruence and growth disruption than extra-articular Type II fractures." },
+            { id: 117, section: 'SEC_C', text: "Growth plate fractures: It often runs across the hypertrophic zone", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "The hypertrophic zone of the physis contains matrix-poor, enlarged cells, making it the weakest mechanical layer where fractures typically travel." },
+            { id: 118, section: 'SEC_C', text: "Growth plate fractures: Type V may not be appreciated on plain x-rays", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Salter-Harris Type V represents a crush injury to the physis without initial displacement, often appearing normal on plain X-rays until growth arrest manifests." },
+            { id: 119, section: 'SEC_C', text: "A greenstick fracture: Part of the cortex is intact and part is crumpled or cracked", options: { A: "TRUE", B: "FALSE" }, answer: "A", rationale: "Greenstick fractures are pediatric incomplete fractures in which the cortex on the tension side breaks while the opposite cortex remains intact or bent." }
+        ];
+
+        // --- APP STATE ---
+        let state = {
+            mode: 'practice', // 'practice' or 'exam'
+            category: 'ALL',
+            currentIndex: 0,
+            filteredQuestions: [...rawQuestions],
+            userAnswers: {}, // { qId: answerKey }
+            bookmarks: new Set(),
+            examTimer: null,
+            secondsElapsed: 0,
+            examSubmitted: false
+        };
+
+        // Initialize Local Storage or State
+        function initApp() {
+            loadLocalStorage();
+            updateFilteredQuestions();
+            renderQuestion();
+            updateSidebarStats();
+            updateGridModal();
+        }
+
+        // --- LOCAL STORAGE ---
+        function saveLocalStorage() {
+            const dataToSave = {
+                userAnswers: state.userAnswers,
+                bookmarks: Array.from(state.bookmarks)
+            };
+            localStorage.setItem('ortho_mcq_app_state', JSON.stringify(dataToSave));
+        }
+
+        function loadLocalStorage() {
+            const saved = localStorage.getItem('ortho_mcq_app_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.userAnswers = parsed.userAnswers || {};
+                    state.bookmarks = new Set(parsed.bookmarks || []);
+                } catch (e) {
+                    console.error("Error loading local storage", e);
+                }
+            }
+        }
+
+        function confirmResetProgress() {
+            if (confirm("Are you sure you want to reset all answers and bookmarks?")) {
+                localStorage.removeItem('ortho_mcq_app_state');
+                state.userAnswers = {};
+                state.bookmarks.clear();
+                state.examSubmitted = false;
+                updateFilteredQuestions();
+                renderQuestion();
+                updateSidebarStats();
+                updateGridModal();
+            }
+        }
+
+        // --- NAVIGATION & FILTERS ---
+        function setMode(mode) {
+            state.mode = mode;
+            state.currentIndex = 0;
+            
+            const practiceBtn = document.getElementById('mode-practice-btn');
+            const examBtn = document.getElementById('mode-exam-btn');
+            const timerBadge = document.getElementById('timer-badge');
+            const submitBtn = document.getElementById('submit-exam-btn');
+            const examSummary = document.getElementById('exam-summary');
+            const questionCard = document.getElementById('question-card');
+
+            examSummary.classList.add('hidden');
+            questionCard.classList.remove('hidden');
+
+            if (mode === 'practice') {
+                practiceBtn.className = "px-3 py-1.5 rounded-md font-medium transition-all bg-sky-600 text-white shadow";
+                examBtn.className = "px-3 py-1.5 rounded-md font-medium transition-all text-slate-300 hover:text-white";
+                timerBadge.classList.add('hidden');
+                submitBtn.classList.add('hidden');
+                stopTimer();
+            } else {
+                examBtn.className = "px-3 py-1.5 rounded-md font-medium transition-all bg-sky-600 text-white shadow";
+                practiceBtn.className = "px-3 py-1.5 rounded-md font-medium transition-all text-slate-300 hover:text-white";
+                timerBadge.classList.remove('hidden');
+                timerBadge.classList.add('flex');
+                submitBtn.classList.remove('hidden');
+                state.examSubmitted = false;
+                startTimer();
+            }
+
+            renderQuestion();
+        }
+
+        function setCategory(cat) {
+            state.category = cat;
+            state.currentIndex = 0;
+
+            // Highlight Active Category Link
+            ['ALL', 'SEC_A', 'SEC_B', 'SEC_C', 'BOOKMARKED', 'INCORRECT'].forEach(c => {
+                const el = document.getElementById(`cat-${c}`);
+                if (el) {
+                    if (c === cat) {
+                        el.className = "w-full flex justify-between items-center px-3 py-2 rounded-lg bg-sky-50 text-sky-700 font-semibold";
+                    } else {
+                        el.className = "w-full flex justify-between items-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50";
+                    }
+                }
+            });
+
+            document.getElementById('search-input').value = '';
+            updateFilteredQuestions();
+            renderQuestion();
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            if (query === '') {
+                updateFilteredQuestions();
+            } else {
+                state.filteredQuestions = rawQuestions.filter(q => 
+                    q.text.toLowerCase().includes(query) || 
+                    q.id.toString() === query
+                );
+                state.currentIndex = 0;
+            }
+            renderQuestion();
+        }
+
+        function updateFilteredQuestions() {
+            if (state.category === 'ALL') {
+                state.filteredQuestions = [...rawQuestions];
+            } else if (state.category === 'SEC_A') {
+                state.filteredQuestions = rawQuestions.filter(q => q.section === 'SEC_A');
+            } else if (state.category === 'SEC_B') {
+                state.filteredQuestions = rawQuestions.filter(q => q.section === 'SEC_B');
+            } else if (state.category === 'SEC_C') {
+                state.filteredQuestions = rawQuestions.filter(q => q.section === 'SEC_C');
+            } else if (state.category === 'BOOKMARKED') {
+                state.filteredQuestions = rawQuestions.filter(q => state.bookmarks.has(q.id));
+            } else if (state.category === 'INCORRECT') {
+                state.filteredQuestions = rawQuestions.filter(q => state.userAnswers[q.id] && state.userAnswers[q.id] !== q.answer);
+            }
+        }
+
+        function navigateQuestion(direction) {
+            const newIndex = state.currentIndex + direction;
+            if (newIndex >= 0 && newIndex < state.filteredQuestions.length) {
+                state.currentIndex = newIndex;
+                renderQuestion();
+            }
+        }
+
+        function jumpToQuestion(qId) {
+            const idx = state.filteredQuestions.findIndex(q => q.id === qId);
+            if (idx !== -1) {
+                state.currentIndex = idx;
+            } else {
+                // If not in current filter, reset to ALL
+                setCategory('ALL');
+                const newIdx = state.filteredQuestions.findIndex(q => q.id === qId);
+                if (newIdx !== -1) state.currentIndex = newIdx;
+            }
+            renderQuestion();
+            toggleGridModal();
+        }
+
+        // --- RENDER CURRENT QUESTION ---
+        function renderQuestion() {
+            const card = document.getElementById('question-card');
+            const summary = document.getElementById('exam-summary');
+
+            if (state.filteredQuestions.length === 0) {
+                card.innerHTML = `
+                    <div class="p-12 text-center text-slate-400 space-y-3">
+                        <i class="fa-solid fa-folder-open text-4xl"></i>
+                        <p class="font-medium">No questions match the selected filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const currentQ = state.filteredQuestions[state.currentIndex];
+            const isBookmarked = state.bookmarks.has(currentQ.id);
+            const savedAnswer = state.userAnswers[currentQ.id];
+
+            // Render Header
+            const sectionNames = { SEC_A: 'Section A: Single Best Answer', SEC_B: 'Section B: Multi-Option', SEC_C: 'Section C: True / False' };
+            document.getElementById('q-section-badge').innerText = sectionNames[currentQ.section] || 'General';
+            document.getElementById('q-number-badge').innerText = `Question ${currentQ.id} (${state.currentIndex + 1} of ${state.filteredQuestions.length})`;
+            
+            // Format text linebreaks
+            document.getElementById('q-text').innerHTML = currentQ.text.replace(/\n/g, '<br>');
+
+            // Bookmark button
+            const bmBtn = document.getElementById('bookmark-btn');
+            bmBtn.className = isBookmarked ? "text-amber-400 hover:text-amber-500 text-xl transition-colors p-1" : "text-slate-300 hover:text-amber-400 text-xl transition-colors p-1";
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            Object.keys(currentQ.options).forEach(key => {
+                const optText = currentQ.options[key];
+                const btn = document.createElement('button');
+                btn.onclick = () => selectOption(currentQ.id, key);
+                
+                let optionStyle = "w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-all flex items-start space-x-3 group";
+
+                if (state.mode === 'practice') {
+                    if (savedAnswer) {
+                        if (key === currentQ.answer) {
+                            optionStyle = "w-full text-left p-3.5 sm:p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-medium flex items-start space-x-3";
+                        } else if (savedAnswer === key) {
+                            optionStyle = "w-full text-left p-3.5 sm:p-4 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-900 flex items-start space-x-3";
+                        } else {
+                            optionStyle = "w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 opacity-60 flex items-start space-x-3";
+                        }
+                    }
+                } else {
+                    // Exam Mode
+                    if (savedAnswer === key) {
+                        optionStyle = "w-full text-left p-3.5 sm:p-4 rounded-xl border-2 border-sky-600 bg-sky-50 text-sky-900 font-medium flex items-start space-x-3 shadow-sm";
+                    }
+                }
+
+                btn.className = optionStyle;
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-200 text-slate-600 group-hover:text-sky-800 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">${key}</span>
+                    <span class="text-sm text-slate-700 leading-snug flex-1">${optText}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Rationale Box Display
+            const rationaleBox = document.getElementById('rationale-box');
+            if ((state.mode === 'practice' && savedAnswer) || (state.mode === 'exam' && state.examSubmitted)) {
+                rationaleBox.classList.remove('hidden');
+                document.getElementById('rationale-title').innerText = `Correct Answer: Option ${currentQ.answer}`;
+                document.getElementById('rationale-text').innerText = currentQ.rationale;
+            } else {
+                rationaleBox.classList.add('hidden');
+            }
+
+            // Buttons state
+            document.getElementById('prev-btn').disabled = (state.currentIndex === 0);
+            document.getElementById('prev-btn').style.opacity = (state.currentIndex === 0) ? '0.5' : '1';
+
+            const isLast = (state.currentIndex === state.filteredQuestions.length - 1);
+            document.getElementById('next-btn').style.opacity = isLast ? '0.5' : '1';
+        }
+
+        // Handle Option Select
+        function selectOption(qId, selectedKey) {
+            if (state.mode === 'exam' && state.examSubmitted) return; // Locked after submit
+
+            state.userAnswers[qId] = selectedKey;
+            saveLocalStorage();
+            renderQuestion();
+            updateSidebarStats();
+            updateGridModal();
+        }
+
+        // Bookmark Toggle
+        function toggleBookmarkCurrent() {
+            const currentQ = state.filteredQuestions[state.currentIndex];
+            if (!currentQ) return;
+
+            if (state.bookmarks.has(currentQ.id)) {
+                state.bookmarks.delete(currentQ.id);
+            } else {
+                state.bookmarks.add(currentQ.id);
+            }
+
+            saveLocalStorage();
+            renderQuestion();
+            updateSidebarStats();
+            updateGridModal();
+        }
+
+        // --- STATS & COUNTS ---
+        function updateSidebarStats() {
+            const total = rawQuestions.length;
+            const answeredCount = Object.keys(state.userAnswers).length;
+            let correctCount = 0;
+
+            Object.keys(state.userAnswers).forEach(qId => {
+                const q = rawQuestions.find(item => item.id == qId);
+                if (q && state.userAnswers[qId] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+            const progressPct = Math.round((answeredCount / total) * 100);
+
+            document.getElementById('progress-text').innerText = `${answeredCount} / ${total}`;
+            document.getElementById('progress-bar-fill').style.width = `${progressPct}%`;
+            document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('stat-answered').innerText = answeredCount;
+
+            // Badges & Filter counts
+            document.getElementById('cnt-BOOKMARKED').innerText = state.bookmarks.size;
+            document.getElementById('flag-count-badge').innerText = state.bookmarks.size;
+            if (state.bookmarks.size > 0) {
+                document.getElementById('flag-count-badge').classList.remove('hidden');
+            } else {
+                document.getElementById('flag-count-badge').classList.add('hidden');
+            }
+
+            const incorrectCount = Object.keys(state.userAnswers).filter(qId => {
+                const q = rawQuestions.find(item => item.id == qId);
+                return q && state.userAnswers[qId] !== q.answer;
+            }).length;
+            document.getElementById('cnt-INCORRECT').innerText = incorrectCount;
+        }
+
+        // --- GRID MAP MODAL ---
+        function toggleGridModal() {
+            const modal = document.getElementById('grid-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function updateGridModal() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+
+            rawQuestions.forEach(q => {
+                const isAnswered = !!state.userAnswers[q.id];
+                const isCorrect = state.userAnswers[q.id] === q.answer;
+                const isBookmarked = state.bookmarks.has(q.id);
+
+                let bgClass = "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+
+                if (state.mode === 'practice' && isAnswered) {
+                    bgClass = isCorrect ? "bg-emerald-500 text-white font-bold" : "bg-rose-500 text-white font-bold";
+                } else if (isAnswered) {
+                    bgClass = "bg-sky-500 text-white font-bold";
+                }
+
+                if (isBookmarked) {
+                    bgClass += " ring-2 ring-amber-400";
+                }
+
+                const btn = document.createElement('button');
+                btn.onclick = () => jumpToQuestion(q.id);
+                btn.className = `h-10 rounded-lg text-xs font-semibold flex items-center justify-center border transition-all ${bgClass}`;
+                btn.innerText = q.id;
+                container.appendChild(btn);
+            });
+        }
+
+        // --- TIMER & EXAM MODE ---
+        function startTimer() {
+            stopTimer();
+            state.secondsElapsed = 0;
+            state.examTimer = setInterval(() => {
+                state.secondsElapsed++;
+                const hrs = String(Math.floor(state.secondsElapsed / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((state.secondsElapsed % 3600) / 60)).padStart(2, '0');
+                const secs = String(state.secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (state.examTimer) clearInterval(state.examTimer);
+        }
+
+        function submitExam() {
+            if (confirm("Are you sure you want to submit your exam now?")) {
+                stopTimer();
+                state.examSubmitted = true;
+
+                let score = 0;
+                rawQuestions.forEach(q => {
+                    if (state.userAnswers[q.id] === q.answer) score++;
+                });
+
+                const pct = Math.round((score / rawQuestions.length) * 100);
+
+                document.getElementById('question-card').classList.add('hidden');
+                document.getElementById('exam-summary').classList.remove('hidden');
+
+                document.getElementById('score-percentage').innerText = `${pct}%`;
+                document.getElementById('score-fraction').innerText = `${score} / ${rawQuestions.length}`;
+                document.getElementById('time-taken-display').innerText = document.getElementById('timer-display').innerText;
+
+                const passBadge = document.getElementById('pass-fail-badge');
+                if (pct >= 70) {
+                    passBadge.innerText = "PASSED";
+                    passBadge.className = "text-2xl font-bold text-emerald-600 my-1";
+                } else {
+                    passBadge.innerText = "NEEDS IMPROVEMENT";
+                    passBadge.className = "text-2xl font-bold text-rose-600 my-1";
+                }
+            }
+        }
+
+        function reviewExamAnswers() {
+            document.getElementById('exam-summary').classList.add('hidden');
+            document.getElementById('question-card').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function resetToHome() {
+            setCategory('ALL');
+            state.currentIndex = 0;
+            renderQuestion();
+        }
+
+        // Run Initialization on Load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
